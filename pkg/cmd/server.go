@@ -2,9 +2,9 @@ package cmd
 
 import (
 	"context"
-	"database/sql"
 	"flag"
 	"fmt"
+	"github.com/jmoiron/sqlx"
 
 	// mysql driver
 	_ "github.com/go-sql-driver/mysql"
@@ -40,7 +40,7 @@ func RunServer() error {
 	flag.StringVar(&cfg.DatastoreDBHost, "db-host", "127.0.0.1", "Database host")
 	flag.StringVar(&cfg.DatastoreDBUser, "db-user", "root", "Database user")
 	flag.StringVar(&cfg.DatastoreDBPassword, "db-password", "1", "Database password")
-	flag.StringVar(&cfg.DatastoreDBSchema, "db-schema", "ToDo", "Database schema")
+	flag.StringVar(&cfg.DatastoreDBSchema, "db-schema", "Movies", "Database schema")
 	flag.Parse()
 
 	if len(cfg.GRPCPort) == 0 {
@@ -58,13 +58,13 @@ func RunServer() error {
 		cfg.DatastoreDBSchema,
 		param)
 
-	db, err := sql.Open("mysql", dsn)
+	db, err := sqlx.Open("mysql", dsn)
 	if err != nil {
 		return fmt.Errorf("failed to open database: %v", err)
 	}
 	defer db.Close()
 
-	v1API := v1.NewToDoServiceServer(db)
+	v1API := v1.NewMovieServiceServer(db)
 
 	return grpc.RunServer(ctx, v1API, cfg.GRPCPort)
 }

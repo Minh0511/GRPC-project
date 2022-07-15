@@ -1,18 +1,18 @@
 package grpc
 
 import (
+	"GRPC-project/pkg/api/v1"
 	"context"
 	"log"
 	"net"
 	"os"
 	"os/signal"
 
-	"GRPC-project/pkg/api/v1"
 	"google.golang.org/grpc"
 )
 
 // RunServer runs gRPC service to publish ToDo service
-func RunServer(ctx context.Context, v1API v1.ToDoServiceServer, port string) error {
+func RunServer(ctx context.Context, v1API v1.MoviesServiceServer, port string) error {
 	listen, err := net.Listen("tcp", ":"+port)
 	if err != nil {
 		return err
@@ -20,7 +20,7 @@ func RunServer(ctx context.Context, v1API v1.ToDoServiceServer, port string) err
 
 	// register service
 	server := grpc.NewServer()
-	v1.RegisterToDoServiceServer(server, v1API)
+	v1.RegisterMoviesServiceServer(server, v1API)
 
 	// graceful shutdown
 	c := make(chan os.Signal, 1)
