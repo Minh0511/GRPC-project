@@ -7,9 +7,8 @@ import (
 	"os"
 	"os/signal"
 
+	"GRPC-project/pkg/api/v1"
 	"google.golang.org/grpc"
-
-	"github.com/hieuvecto/todo-grpc/pkg/api/v1"
 )
 
 // RunServer runs gRPC service to publish ToDo service

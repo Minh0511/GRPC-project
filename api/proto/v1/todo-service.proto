@@ -69,8 +69,8 @@ message UpdateResponse{
     // API versioning: it is my best practice to specify version explicitly
     string api = 1;
 
-    // Contains number of entities have beed updated
-    // Equals 1 in case of succesfull update
+    // Contains number of entities have been updated
+    // Equals 1 in case of successful update
     int64 updated = 2;
 }
 
@@ -88,8 +88,8 @@ message DeleteResponse{
     // API versioning: it is my best practice to specify version explicitly
     string api = 1;
 
-    // Contains number of entities have beed deleted
-    // Equals 1 in case of succesfull delete
+    // Contains number of entities have been deleted
+    // Equals 1 in case of successful delete
     int64 deleted = 2;
 }
 

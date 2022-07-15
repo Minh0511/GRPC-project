@@ -9,7 +9,7 @@ import (
 	"github.com/golang/protobuf/ptypes"
 	"google.golang.org/grpc"
 
-	"github.com/hieuvecto/todo-grpc/pkg/api/v1"
+	"GRPC-project/pkg/api/v1"
 )
 
 const (
@@ -19,7 +19,7 @@ const (
 
 func main() {
 	// get configuration
-	address := flag.String("server", "", "gRPC server in format host:port")
+	address := flag.String("server", "localhost:9090", "gRPC server in format host:port")
 	flag.Parse()
 
 	// Set up a connection to the server.
@@ -45,7 +45,7 @@ func main() {
 			Title:       "title (" + pfx + ")",
 			Description: "description (" + pfx + ")",
 			InsertAt:    insert_at,
-			UpdateAt: insert_at,
+			UpdateAt:    insert_at,
 		},
 	}
 	res1, err := c.Create(ctx, &req1)

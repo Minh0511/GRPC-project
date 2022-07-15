@@ -1,10 +1,9 @@
 package main
 
 import (
+	"GRPC-project/pkg/cmd"
 	"fmt"
 	"os"
-
-	"github.com/hieuvecto/todo-grpc/pkg/cmd"
 )
 
 func main() {

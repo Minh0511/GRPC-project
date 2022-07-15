@@ -7,6 +7,7 @@ In the root folder, go to the cmd directory and run the server:
 ````
 cd cmd/server
 server.exe -grpc-port=9090 -db-host=<HOST>:3306 -db-user=<USER> -db-password=<PASSWORD> -db-schema=<SCHEMA>
+./server -grpc-port=9090 -db-host=127.0.0.1:3306 -db-user=root -db-password=1 -db-schema=ToDo
 ````
 In another terminal, go to the cmd directory and run the client
 ````
