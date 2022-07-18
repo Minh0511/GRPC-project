@@ -57,21 +57,6 @@ func (s *movieServiceServer) GetAllMovies(ctx context.Context, request *v1.ReadA
 	}, nil
 }
 
-func (s *movieServiceServer) GetMoviesByGenre(ctx context.Context, request *v1.ReadRequest) (*v1.ReadResponse, error) {
-	if err := s.checkAPI(request.Api); err != nil {
-		return nil, err
-	}
-	var movies []*v1.Movies
-	err := s.db.QueryRowx("SELECT * FROM Movies WHERE MovieGenre = ?", request.MovieGenre).StructScan(&movies)
-	if err != nil {
-		return nil, status.Error(codes.Unknown, "failed to query-> "+err.Error())
-	}
-	return &v1.ReadResponse{
-		Api:    apiVersion,
-		Movies: movies,
-	}, nil
-}
-
 func (s *movieServiceServer) UpdateMovies(ctx context.Context, request *v1.UpdateRequest) (*v1.UpdateResponse, error) {
 	if err := s.checkAPI(request.Api); err != nil {
 		return nil, err

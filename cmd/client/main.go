@@ -1,9 +1,11 @@
 package main
 
 import (
+	"GRPC-project/config"
 	"context"
 	"flag"
 	"log"
+	"math/rand"
 	"time"
 
 	"google.golang.org/grpc"
@@ -30,7 +32,7 @@ func main() {
 
 	c := v1.NewMoviesServiceClient(conn)
 
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 5000*time.Second)
 	defer cancel()
 
 	// Call Create
@@ -57,34 +59,26 @@ func main() {
 	if err != nil {
 		log.Fatalf("Read failed: %v", err)
 	}
-	log.Printf("Read result: <%+v>\n\n", res2)
-
-	// Get movie by genre
-	req3 := v1.ReadRequest{
-		Api:        apiVersion,
-		MovieGenre: "Action",
+	//log.Printf("Read result: <%+v>\n\n", res2)
+	for _, m := range res2.Movies {
+		log.Printf("Movie: <%+v>\n", m)
 	}
-	res3, err := c.GetMoviesByGenre(ctx, &req3)
-	if err != nil {
-		log.Fatalf("Read failed: %v", err)
-	}
-	log.Printf("Read result: <%+v>\n\n", res3)
 
 	// Update
 	req4 := v1.UpdateRequest{
 		Api: apiVersion,
 		Movies: &v1.Movies{
-			MovieName:  "Doom",
-			MovieGenre: "Action",
-			Director:   "John Wachowski",
-			Rating:     9.1,
+			MovieName:  config.MoviesName[rand.Intn(len(config.MoviesName))],
+			MovieGenre: config.MoviesGenre[rand.Intn(len(config.MoviesGenre))],
+			Director:   config.MoviesDirector[rand.Intn(len(config.MoviesDirector))],
+			Rating:     float32(config.MoviesRating[rand.Intn(len(config.MoviesRating))]),
 		},
 	}
 	res4, err := c.UpdateMovies(ctx, &req4)
 	if err != nil {
 		log.Fatalf("Update failed: %v", err)
 	}
-	log.Printf("Update result: <%+v>\n\n", res4)
+	log.Printf("Update successfull: <%+v>\n\n", res4)
 
 	// Delete
 	req5 := v1.DeleteRequest{
@@ -95,5 +89,5 @@ func main() {
 	if err != nil {
 		log.Fatalf("Delete failed: %v", err)
 	}
-	log.Printf("Delete result: <%+v>\n\n", res5)
+	log.Printf("Delete successfull: <%+v>\n\n", res5)
 }
