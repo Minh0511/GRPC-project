@@ -4,6 +4,7 @@ import (
 	"GRPC-project/config"
 	"context"
 	"flag"
+	"fmt"
 	"log"
 	"math/rand"
 	"time"
@@ -54,12 +55,13 @@ func main() {
 	//Get movies by genre
 	req2 := v1.ReadRequest{
 		Api:        apiVersion,
-		MovieGenre: config.MoviesGenre[rand.Intn(len(config.MoviesGenre))],
+		MovieGenre: "Action",
 	}
 	res2, err := c.GetMovieByGenre(ctx, &req2)
 	if err != nil {
 		log.Fatalf("Read failed: %v", err)
 	}
+	fmt.Println("Get movies by genre:")
 	for _, m := range res2.Movies {
 		log.Printf("Movie: <%+v>\n", m)
 	}
@@ -73,6 +75,7 @@ func main() {
 		log.Fatalf("Read failed: %v", err)
 	}
 	//log.Printf("Read result: <%+v>\n\n", res3)
+	fmt.Println("Get all movies:")
 	for _, m := range res3.Movies {
 		log.Printf("Movie: <%+v>\n", m)
 	}

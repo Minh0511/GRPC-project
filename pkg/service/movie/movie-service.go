@@ -46,7 +46,7 @@ func (s *movieServiceServer) GetAllMovies(ctx context.Context, request *v1.ReadA
 	if err := s.checkAPI(request.Api); err != nil {
 		return nil, err
 	}
-	rows, err := s.db.Queryx("SELECT * FROM Movies")
+	rows, err := s.db.Queryx("SELECT * FROM Movies LIMIT 20")
 	if err != nil {
 		return nil, status.Error(codes.Unknown, "failed to query-> "+err.Error())
 	}
