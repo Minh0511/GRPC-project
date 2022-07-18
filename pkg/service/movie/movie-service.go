@@ -1,23 +1,28 @@
 package v1
 
 import (
+	"GRPC-project/pkg/api/proto/v1"
 	"context"
 	"database/sql"
+	"fmt"
 	"github.com/jmoiron/sqlx"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
-
-	"GRPC-project/pkg/api/v1"
+	"time"
 )
 
 const (
 	// apiVersion is version of API is provided by server
-	apiVersion = "v1"
+	apiVersion = "movie"
 )
 
-// movieServiceServer is implementation of v1.ToDoServiceServer proto interface
 type movieServiceServer struct {
+	v1.UnimplementedMoviesServiceServer
 	db *sqlx.DB
+}
+
+func NewMovieServiceServer(db *sqlx.DB) v1.MoviesServiceServer {
+	return &movieServiceServer{db: db}
 }
 
 func (s *movieServiceServer) CreateMovies(ctx context.Context, request *v1.CreateRequest) (*v1.CreateResponse, error) {
@@ -26,11 +31,14 @@ func (s *movieServiceServer) CreateMovies(ctx context.Context, request *v1.Creat
 		return nil, err
 	}
 	tx := s.db.MustBegin()
-	tx.MustExec("INSERT INTO Movies (MovieName, MovieGenre, Director, Rating) VALUES (?, ?, ?, ?)", "Avengers", "Action", "John Wick", 9.1)
+	tx.MustExec("INSERT INTO Movies (MovieName, MovieGenre, Director, Rating) VALUES (?, ?, ?, ?)", request.Movies.MovieName, request.Movies.MovieGenre, request.Movies.Director, request.Movies.Rating)
 	tx.Commit()
 	return &v1.CreateResponse{
-		Api:       apiVersion,
-		MovieName: request.Movies.MovieName,
+		Api:        apiVersion,
+		MovieName:  request.Movies.MovieName,
+		MovieGenre: request.Movies.MovieGenre,
+		Director:   request.Movies.Director,
+		Rating:     request.Movies.Rating,
 	}, nil
 }
 
@@ -57,12 +65,46 @@ func (s *movieServiceServer) GetAllMovies(ctx context.Context, request *v1.ReadA
 	}, nil
 }
 
+type responseForGetMovieByName struct {
+	MovieName  string  `db:"MovieName"`
+	MovieGenre string  `db:"MovieGenre"`
+	Director   string  `db:"Director"`
+	Rating     float32 `db:"Rating"`
+}
+
+func (s *movieServiceServer) GetMovieByGenre(ctx context.Context, request *v1.ReadRequest) (*v1.ReadResponse, error) {
+	start := time.Now()
+	tx := s.db.MustBegin()
+	listMovie := "SELECT * FROM Movies WHERE MovieGenre = ? LIMIT 20"
+	var queryAns []*responseForGetMovieByName
+	err := tx.SelectContext(ctx, &queryAns, listMovie, request.MovieGenre)
+	if err != nil {
+		return nil, status.Error(codes.Unknown, "failed to query-> "+err.Error())
+	}
+
+	var movies []*v1.Movies
+	for _, v := range queryAns {
+		var m v1.Movies
+		m.MovieName = v.MovieName
+		m.MovieGenre = v.MovieGenre
+		m.Director = v.Director
+		m.Rating = v.Rating
+		movies = append(movies, &m)
+	}
+	tx.Commit()
+	fmt.Println("Get movie by genre executed in: ", time.Since(start))
+	return &v1.ReadResponse{
+		Api:    apiVersion,
+		Movies: movies,
+	}, nil
+}
+
 func (s *movieServiceServer) UpdateMovies(ctx context.Context, request *v1.UpdateRequest) (*v1.UpdateResponse, error) {
 	if err := s.checkAPI(request.Api); err != nil {
 		return nil, err
 	}
 	tx := s.db.MustBegin()
-	tx.MustExec("UPDATE Movies SET MovieGenre = ?, Director = ?, Rating = ? WHERE MovieName = ?", request.Movies.MovieGenre, request.Movies.Director, request.Movies.Rating, request.Movies.MovieName)
+	tx.MustExec("UPDATE Movies SET MovieGenre = ?, Director = ?, Rating = ? WHERE MovieName = ?", "Action", "Le Thi Linh Chi", 20, request.MovieName)
 	err := tx.Commit()
 	if err != nil {
 		return nil, err
@@ -86,10 +128,6 @@ func (s *movieServiceServer) DeleteMovies(ctx context.Context, request *v1.Delet
 	return &v1.DeleteResponse{
 		Api: apiVersion,
 	}, nil
-}
-
-func NewMovieServiceServer(db *sqlx.DB) v1.MoviesServiceServer {
-	return &movieServiceServer{db: db}
 }
 
 // checkAPI checks if the API version requested by client is supported by server

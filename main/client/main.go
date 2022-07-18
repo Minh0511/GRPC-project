@@ -10,12 +10,12 @@ import (
 
 	"google.golang.org/grpc"
 
-	"GRPC-project/pkg/api/v1"
+	"GRPC-project/pkg/api/proto/v1"
 )
 
 const (
 	// apiVersion is version of API is provided by server
-	apiVersion = "v1"
+	apiVersion = "movie"
 )
 
 func main() {
@@ -39,10 +39,10 @@ func main() {
 	req1 := v1.CreateRequest{
 		Api: apiVersion,
 		Movies: &v1.Movies{
-			MovieName:  "Doom",
-			MovieGenre: "Action",
-			Director:   "John Wachowski",
-			Rating:     9.1,
+			MovieName:  config.MoviesName[rand.Intn(len(config.MoviesName))],
+			MovieGenre: config.MoviesGenre[rand.Intn(len(config.MoviesGenre))],
+			Director:   config.MoviesDirector[rand.Intn(len(config.MoviesDirector))],
+			Rating:     float32(config.MoviesRating[rand.Intn(len(config.MoviesRating))]),
 		},
 	}
 	res1, err := c.CreateMovies(ctx, &req1)
@@ -51,28 +51,36 @@ func main() {
 	}
 	log.Printf("Create result: <%+v>\n\n", res1)
 
-	//Get all movies
-	req2 := v1.ReadAllRequest{
-		Api: apiVersion,
+	//Get movies by genre
+	req2 := v1.ReadRequest{
+		Api:        apiVersion,
+		MovieGenre: config.MoviesGenre[rand.Intn(len(config.MoviesGenre))],
 	}
-	res2, err := c.GetAllMovies(ctx, &req2)
+	res2, err := c.GetMovieByGenre(ctx, &req2)
 	if err != nil {
 		log.Fatalf("Read failed: %v", err)
 	}
-	//log.Printf("Read result: <%+v>\n\n", res2)
 	for _, m := range res2.Movies {
+		log.Printf("Movie: <%+v>\n", m)
+	}
+
+	//Get all movies
+	req3 := v1.ReadAllRequest{
+		Api: apiVersion,
+	}
+	res3, err := c.GetAllMovies(ctx, &req3)
+	if err != nil {
+		log.Fatalf("Read failed: %v", err)
+	}
+	//log.Printf("Read result: <%+v>\n\n", res3)
+	for _, m := range res3.Movies {
 		log.Printf("Movie: <%+v>\n", m)
 	}
 
 	// Update
 	req4 := v1.UpdateRequest{
-		Api: apiVersion,
-		Movies: &v1.Movies{
-			MovieName:  config.MoviesName[rand.Intn(len(config.MoviesName))],
-			MovieGenre: config.MoviesGenre[rand.Intn(len(config.MoviesGenre))],
-			Director:   config.MoviesDirector[rand.Intn(len(config.MoviesDirector))],
-			Rating:     float32(config.MoviesRating[rand.Intn(len(config.MoviesRating))]),
-		},
+		Api:       apiVersion,
+		MovieName: config.MoviesName[rand.Intn(len(config.MoviesName))],
 	}
 	res4, err := c.UpdateMovies(ctx, &req4)
 	if err != nil {

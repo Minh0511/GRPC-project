@@ -1,7 +1,7 @@
 package grpc
 
 import (
-	"GRPC-project/pkg/api/v1"
+	"GRPC-project/pkg/api/proto/v1"
 	"context"
 	"log"
 	"net"

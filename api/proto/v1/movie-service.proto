@@ -1,7 +1,9 @@
 syntax = "proto3";
 package v1;
 
-option go_package = "./v1";
+import "google/api/annotations.proto";
+
+option go_package = "./movie";
 
 message Movies {
     string MovieName = 1;
@@ -12,13 +14,37 @@ message Movies {
 
 // Service to manage list of todo tasks
 service MoviesService {
-    rpc CreateMovies(CreateRequest) returns (CreateResponse);
+    rpc CreateMovies(CreateRequest) returns (CreateResponse) {
+        option (google.api.http) = {
+            post: "/movie/movies"
+            body: "*"
+        };
+    };
 
-    rpc GetAllMovies(ReadAllRequest) returns (ReadAllResponse);
+    rpc GetAllMovies(ReadAllRequest) returns (ReadAllResponse) {
+        option (google.api.http) = {
+            get: "/movie/movies"
+        };
+    };
 
-    rpc UpdateMovies(UpdateRequest) returns (UpdateResponse);
+    rpc GetMovieByGenre(ReadRequest) returns (ReadResponse) {
+        option (google.api.http) = {
+            get: "/movie/movies/{MovieGenre}"
+        };
+    };
 
-    rpc DeleteMovies(DeleteRequest) returns (DeleteResponse);
+    rpc UpdateMovies(UpdateRequest) returns (UpdateResponse) {
+        option (google.api.http) = {
+            put: "/movie/movies/{MovieName}"
+            body: "*"
+        };
+    };
+
+    rpc DeleteMovies(DeleteRequest) returns (DeleteResponse) {
+        option (google.api.http) = {
+            delete: "/movie/movies/{MovieName}"
+        };
+    };
 }
 
 message CreateRequest {
@@ -29,6 +55,9 @@ message CreateRequest {
 message CreateResponse {
     string api = 1;
     string MovieName = 2;
+    string MovieGenre = 3;
+    string Director = 4;
+    float Rating = 5;
 }
 
 message ReadAllRequest {
@@ -40,9 +69,19 @@ message ReadAllResponse {
     repeated Movies movies = 2;
 }
 
+message ReadRequest {
+    string api = 1;
+    string MovieGenre = 2;
+}
+
+message ReadResponse {
+    string api = 1;
+    repeated Movies movies = 2;
+}
+
 message UpdateRequest {
     string api = 1;
-    Movies movies = 2;
+    string MovieName = 2;
 }
 
 message UpdateResponse {

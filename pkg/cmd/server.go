@@ -10,7 +10,7 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 
 	"GRPC-project/pkg/protocol/grpc"
-	"GRPC-project/pkg/service/v1"
+	"GRPC-project/pkg/service/movie"
 )
 
 // Config is configuration for Server
