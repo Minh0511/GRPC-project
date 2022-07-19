@@ -46,7 +46,7 @@ func (s *movieServiceServer) GetAllMovies(ctx context.Context, request *v1.ReadA
 	if err := s.checkAPI(request.Api); err != nil {
 		return nil, err
 	}
-	rows, err := s.db.Queryx("SELECT * FROM Movies LIMIT 20")
+	rows, err := s.db.Queryx("SELECT * FROM Movies")
 	if err != nil {
 		return nil, status.Error(codes.Unknown, "failed to query-> "+err.Error())
 	}
@@ -75,7 +75,7 @@ type responseForGetMovieByName struct {
 func (s *movieServiceServer) GetMovieByGenre(ctx context.Context, request *v1.ReadRequest) (*v1.ReadResponse, error) {
 	start := time.Now()
 	tx := s.db.MustBegin()
-	listMovie := "SELECT * FROM Movies WHERE MovieGenre = ? LIMIT 20"
+	listMovie := "SELECT * FROM Movies WHERE MovieGenre = ?"
 	var queryAns []*responseForGetMovieByName
 	err := tx.SelectContext(ctx, &queryAns, listMovie, request.MovieGenre)
 	if err != nil {
