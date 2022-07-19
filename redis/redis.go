@@ -4,6 +4,7 @@ import (
 	v1 "GRPC-project/pkg/api/proto/v1"
 	"encoding/json"
 	"flag"
+	"fmt"
 	"github.com/go-redis/redis/v8"
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"
@@ -36,16 +37,15 @@ func main() {
 		panic(res)
 	}
 	if len(nameInRedis) == 0 {
-		log.Println("No movie found")
+		log.Println("No movie in redis cache found")
 
 	} else {
-		start := time.Now()
 		log.Println("Found movie in redis")
+		start := time.Now()
 		for key, value := range nameInRedis {
-			log.Printf("Movie ID: <%+v>\n", key)
-			log.Printf("Movie: <%+v>\n", value)
+			log.Println("ID:", key, value)
 		}
-		log.Println("Time taken: ", time.Since(start))
+		fmt.Println("Time taken:", time.Since(start))
 	}
 }
 
@@ -102,7 +102,6 @@ func addDBtoRedis(ctx context.Context, client *redis.Client, query string) error
 			return err
 		}
 		ID := res.Movies[i].ID
-		log.Println(ID)
 		args[ID] = byteArray
 		client.HSet(ctx, query, ID, args[ID])
 	}
