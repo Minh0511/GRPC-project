@@ -34,11 +34,8 @@ func (s *movieServiceServer) CreateMovies(ctx context.Context, request *v1.Creat
 	tx.MustExec("INSERT INTO Movies (MovieName, MovieGenre, Director, Rating) VALUES (?, ?, ?, ?)", request.Movies.MovieName, request.Movies.MovieGenre, request.Movies.Director, request.Movies.Rating)
 	tx.Commit()
 	return &v1.CreateResponse{
-		Api:        apiVersion,
-		MovieName:  request.Movies.MovieName,
-		MovieGenre: request.Movies.MovieGenre,
-		Director:   request.Movies.Director,
-		Rating:     request.Movies.Rating,
+		Api:    apiVersion,
+		Movies: request.Movies,
 	}, nil
 }
 
@@ -46,7 +43,7 @@ func (s *movieServiceServer) GetAllMovies(ctx context.Context, request *v1.ReadA
 	if err := s.checkAPI(request.Api); err != nil {
 		return nil, err
 	}
-	rows, err := s.db.Queryx("SELECT * FROM Movies")
+	rows, err := s.db.Queryx("SELECT MovieName, MovieGenre, Director, Rating FROM Movies")
 	if err != nil {
 		return nil, status.Error(codes.Unknown, "failed to query-> "+err.Error())
 	}
@@ -66,6 +63,7 @@ func (s *movieServiceServer) GetAllMovies(ctx context.Context, request *v1.ReadA
 }
 
 type responseForGetMovieByName struct {
+	ID         int     `db:"ID"`
 	MovieName  string  `db:"MovieName"`
 	MovieGenre string  `db:"MovieGenre"`
 	Director   string  `db:"Director"`
@@ -75,7 +73,7 @@ type responseForGetMovieByName struct {
 func (s *movieServiceServer) GetMovieByGenre(ctx context.Context, request *v1.ReadRequest) (*v1.ReadResponse, error) {
 	start := time.Now()
 	tx := s.db.MustBegin()
-	listMovie := "SELECT * FROM Movies WHERE MovieGenre = ?"
+	listMovie := "SELECT ID, MovieName, MovieGenre, Director, Rating FROM Movies WHERE MovieGenre = ?"
 	var queryAns []*responseForGetMovieByName
 	err := tx.SelectContext(ctx, &queryAns, listMovie, request.MovieGenre)
 	if err != nil {
@@ -85,6 +83,7 @@ func (s *movieServiceServer) GetMovieByGenre(ctx context.Context, request *v1.Re
 	var movies []*v1.Movies
 	for _, v := range queryAns {
 		var m v1.Movies
+		m.ID = int32(v.ID)
 		m.MovieName = v.MovieName
 		m.MovieGenre = v.MovieGenre
 		m.Director = v.Director

@@ -4,7 +4,6 @@ import (
 	v1 "GRPC-project/pkg/api/proto/v1"
 	"encoding/json"
 	"flag"
-	"fmt"
 	"github.com/go-redis/redis/v8"
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"
@@ -23,7 +22,7 @@ func main() {
 	defer cancel()
 	redisClient := newRedisClient()
 
-	searchMovieGenre := "Horror"
+	searchMovieGenre := "Action"
 
 	nameInRedis, err := redisClient.HGetAll(ctx, searchMovieGenre).Result()
 
@@ -31,27 +30,22 @@ func main() {
 		log.Println(err)
 		panic(err)
 	}
+	res := addDBtoRedis(ctx, redisClient, searchMovieGenre)
+	if res != nil {
+		log.Println(res)
+		panic(res)
+	}
 	if len(nameInRedis) == 0 {
 		log.Println("No movie found")
-		res := addDBtoRedis(ctx, redisClient, searchMovieGenre)
-		if res != nil {
-			log.Println(res)
-			panic(res)
-		}
+
 	} else {
 		start := time.Now()
 		log.Println("Found movie in redis")
 		for key, value := range nameInRedis {
-			log.Printf("Movie: <%+v>\n", key)
+			log.Printf("Movie ID: <%+v>\n", key)
 			log.Printf("Movie: <%+v>\n", value)
 		}
 		log.Println("Time taken: ", time.Since(start))
-	}
-	result, err := redisPing(redisClient, ctx)
-	if err != nil {
-		fmt.Println(err)
-	} else {
-		fmt.Println(result)
 	}
 }
 
@@ -63,16 +57,6 @@ func newRedisClient() *redis.Client {
 	})
 
 	return redisClient
-}
-
-func redisPing(client *redis.Client, ctx context.Context) (string, error) {
-	var result, err = client.Ping(ctx).Result()
-
-	if err != nil {
-		return "", err
-	} else {
-		return result, nil
-	}
 }
 
 func addDBtoRedis(ctx context.Context, client *redis.Client, query string) error {
@@ -87,8 +71,6 @@ func addDBtoRedis(ctx context.Context, client *redis.Client, query string) error
 	defer conn.Close()
 
 	c := v1.NewMoviesServiceClient(conn)
-	ctx, cancel := context.WithTimeout(context.Background(), 5000*time.Second)
-	defer cancel()
 
 	req := v1.ReadRequest{
 		Api:        apiVersion,
@@ -98,11 +80,11 @@ func addDBtoRedis(ctx context.Context, client *redis.Client, query string) error
 	if err != nil {
 		log.Fatalf("Read failed: %v", err)
 	}
-	fmt.Println("Get movies by genre:")
 	for _, m := range res.Movies {
 		log.Printf("Movie: <%+v>\n", m)
 	}
 
+	args := make(map[int32]interface{})
 	for i := range res.Movies {
 		convert := struct {
 			MovieName  string  `json:"MovieName"`
@@ -119,7 +101,10 @@ func addDBtoRedis(ctx context.Context, client *redis.Client, query string) error
 		if err != nil {
 			return err
 		}
-		client.HSet(ctx, query, res.Movies[i].MovieName, byteArray)
+		ID := res.Movies[i].ID
+		log.Println(ID)
+		args[ID] = byteArray
+		client.HSet(ctx, query, ID, args[ID])
 	}
 	return err
 }
