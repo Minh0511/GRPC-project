@@ -3,59 +3,59 @@ package v1;
 
 import "google/api/annotations.proto";
 
-option go_package = "./movie";
+option go_package = "./v1";
 
-message Movies {
-    int32 ID = 1;
-    string MovieName = 2;
-    string MovieGenre = 3;
-    string Director = 4;
-    float Rating = 5;
+message Customer {
+    int32 TransactionID = 1;
+    string CustomerName = 2;
+    string Phone = 3;
+    string Email = 4;
+    string Product = 5;
 }
 
 // Service to manage list of todo tasks
-service MoviesService {
-    rpc CreateMovies(CreateRequest) returns (CreateResponse) {
+service TransactionService {
+    rpc CreateCustomer(CreateRequest) returns (CreateResponse) {
         option (google.api.http) = {
-            post: "/movie/movies"
+            post: "/customer/customers"
             body: "*"
         };
     };
 
-    rpc GetAllMovies(ReadAllRequest) returns (ReadAllResponse) {
+    rpc GetAllCustomer(ReadAllRequest) returns (ReadAllResponse) {
         option (google.api.http) = {
-            get: "/movie/movies"
+            get: "/customer/customers"
         };
     };
 
-    rpc GetMovieByGenre(ReadRequest) returns (ReadResponse) {
+    rpc GetCustomerByProduct(ReadRequest) returns (ReadResponse) {
         option (google.api.http) = {
-            get: "/movie/movies/{MovieGenre}"
+            get: "/customer/customers/{Product}"
         };
     };
 
-    rpc UpdateMovies(UpdateRequest) returns (UpdateResponse) {
+    rpc UpdateCustomer(UpdateRequest) returns (UpdateResponse) {
         option (google.api.http) = {
-            put: "/movie/movies/{MovieName}"
+            put: "/customer/customers/{CustomerName}"
             body: "*"
         };
     };
 
-    rpc DeleteMovies(DeleteRequest) returns (DeleteResponse) {
+    rpc DeleteCustomer(DeleteRequest) returns (DeleteResponse) {
         option (google.api.http) = {
-            delete: "/movie/movies/{MovieName}"
+            delete: "/customer/customers/{Product}"
         };
     };
 }
 
 message CreateRequest {
     string api = 1;
-    Movies movies = 2;
+    Customer customer = 2;
 }
 
 message CreateResponse {
     string api = 1;
-    Movies movies = 2;
+    Customer customer = 2;
 }
 
 message ReadAllRequest {
@@ -64,22 +64,22 @@ message ReadAllRequest {
 
 message ReadAllResponse {
     string api = 1;
-    repeated Movies movies = 2;
+    repeated Customer customer = 2;
 }
 
 message ReadRequest {
     string api = 1;
-    string MovieGenre = 2;
+    string Product = 2;
 }
 
 message ReadResponse {
     string api = 1;
-    repeated Movies movies = 2;
+    repeated Customer customer = 2;
 }
 
 message UpdateRequest {
     string api = 1;
-    string MovieName = 2;
+    string CustomerName = 2;
 }
 
 message UpdateResponse {
@@ -88,7 +88,7 @@ message UpdateResponse {
 
 message DeleteRequest {
     string api = 1;
-    string MovieName = 2;
+    string Product = 2;
 }
 
 message DeleteResponse{

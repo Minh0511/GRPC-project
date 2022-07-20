@@ -40,7 +40,7 @@ func RunServer() error {
 	flag.StringVar(&cfg.DatastoreDBHost, "db-host", "127.0.0.1", "Database host")
 	flag.StringVar(&cfg.DatastoreDBUser, "db-user", "root", "Database user")
 	flag.StringVar(&cfg.DatastoreDBPassword, "db-password", "1", "Database password")
-	flag.StringVar(&cfg.DatastoreDBSchema, "db-schema", "Movies", "Database schema")
+	flag.StringVar(&cfg.DatastoreDBSchema, "db-schema", "Transaction", "Database schema")
 	flag.Parse()
 
 	if len(cfg.GRPCPort) == 0 {

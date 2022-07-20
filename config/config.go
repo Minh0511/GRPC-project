@@ -1,9 +1,8 @@
 package config
 
-var MoviesName = []string{"Avengers", "The Eternals", "Overwatch", "Elden ring", "Dark souls",
-	"The Last of Us", "Honkai impact", "FlyMe2theMoon", "Stardew Valley", "Doom"}
-var MoviesGenre = []string{"Action", "Comedy", "Romance", "Horror", "Harem",
-	"Isekai", "Sci-fi", "Gender bender", "Slice of life", "Fantasy"}
-var MoviesDirector = []string{"Kevin Kaslana", "Raiden Mei", "Bronya Zaychik", "Seele", "Otto Apocalypse",
-	"Murata Himeko", "Rita Rossweisse", "Hidetaka Miyazaki", "George Martin", "Michael Bay"}
-var MoviesRating = []float64{9.1, 9.5, 9.3, 9.2, 8.7, 7.2, 5.4, 3.1, 9.9, 8.6}
+var CustomerName = []string{"Phạm Vũ Minh", "Lê Thị Linh Chi", "Nguyễn Xuân Khang", "Đỗ Hồng Hà", "Đỗ Thị Ngoan",
+	"Cao Thanh Hải", "Võ Minh Quân", "Nguyễn Minh Thái", "Nguyễn Duy Ngọc", "Ngô Xuân Bách"}
+var Phone = []string{"407", "916", "772", "857", "217", "815", "806", "567", "952", "567"}
+var Email = []string{"@gmail.com", "@edu.vn", "@teko.vn", "@fb.com", "@uet.com"}
+var Product = []string{"Bàn phím cơ", "ASUS ROG phone 6", "Iphone 13 pro max", "RTX 3090 Ti", "Chuột không dây", "Găng tay", "Gấu bông",
+	"Vòng cổ", "Nước hoa", "Nhẫn kim cương"}

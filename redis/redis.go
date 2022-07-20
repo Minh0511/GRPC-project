@@ -71,38 +71,38 @@ func addDBtoRedis(ctx context.Context, client *redis.Client, query string) error
 	}
 	defer conn.Close()
 
-	c := v1.NewMoviesServiceClient(conn)
+	c := v1.NewTransactionServiceClient(conn)
 
 	req := v1.ReadRequest{
-		Api:        apiVersion,
-		MovieGenre: "Action",
+		Api:     apiVersion,
+		Product: "Bàn phím cơ",
 	}
-	res, err := c.GetMovieByGenre(ctx, &req)
+	res, err := c.GetCustomerByProduct(ctx, &req)
 	if err != nil {
 		log.Fatalf("Read failed: %v", err)
 	}
-	for _, m := range res.Movies {
+	for _, m := range res.Customer {
 		log.Printf("Movie: <%+v>\n", m)
 	}
 
 	args := make(map[int32]interface{})
-	for i := range res.Movies {
+	for i := range res.Customer {
 		convert := struct {
-			MovieName  string  `json:"MovieName"`
-			MovieGenre string  `json:"MovieGenre"`
-			Director   string  `json:"Director"`
-			Rating     float32 `json:"Rating"`
+			CustomerName string `json:"CustomerName"`
+			Phone        string `json:"Phone"`
+			Email        string `json:"Email"`
+			Product      string `json:"Product"`
 		}{}
-		convert.MovieName = res.Movies[i].MovieName
-		convert.MovieGenre = res.Movies[i].MovieGenre
-		convert.Director = res.Movies[i].Director
-		convert.Rating = res.Movies[i].Rating
+		convert.CustomerName = res.Customer[i].CustomerName
+		convert.Phone = res.Customer[i].Phone
+		convert.Email = res.Customer[i].Email
+		convert.Product = res.Customer[i].Product
 
 		byteArray, err := json.Marshal(convert)
 		if err != nil {
 			return err
 		}
-		ID := res.Movies[i].ID
+		ID := res.Customer[i].TransactionID
 		args[ID] = byteArray
 		client.HSet(ctx, query, ID, args[ID])
 	}
