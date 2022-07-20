@@ -25,7 +25,9 @@ func main() {
 
 	searchMovieGenre := "Action"
 
+	start := time.Now()
 	nameInRedis, err := redisClient.HGetAll(ctx, searchMovieGenre).Result()
+	end := time.Since(start)
 
 	if err != nil {
 		log.Println(err)
@@ -41,12 +43,11 @@ func main() {
 
 	} else {
 		log.Println("Found movie in redis")
-		start := time.Now()
 		for key, value := range nameInRedis {
 			log.Println("ID:", key, value)
 		}
-		fmt.Println("Time taken:", time.Since(start))
 	}
+	fmt.Println("Time taken: ", end)
 }
 
 func newRedisClient() *redis.Client {
