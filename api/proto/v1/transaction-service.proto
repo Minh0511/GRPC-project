@@ -11,6 +11,7 @@ message Customer {
     string Phone = 3;
     string Email = 4;
     string Product = 5;
+    int32 ReadyToPush = 6;
 }
 
 // Service to manage list of todo tasks
@@ -44,6 +45,13 @@ service TransactionService {
     rpc DeleteCustomer(DeleteRequest) returns (DeleteResponse) {
         option (google.api.http) = {
             delete: "/customer/customers/{Product}"
+        };
+    };
+
+    rpc UpdateReadyToPush(UpdateFlagRequest) returns (UpdateFlagResponse) {
+        option (google.api.http) = {
+            put: "/customer/customers/{ReadyToPush}"
+            body: "*"
         };
     };
 }
@@ -93,5 +101,14 @@ message DeleteRequest {
 
 message DeleteResponse{
     // API versioning: it is my best practice to specify version explicitly
+    string api = 1;
+}
+
+message UpdateFlagRequest {
+    string api = 1;
+    int32 ReadyToPush = 2;
+}
+
+message UpdateFlagResponse {
     string api = 1;
 }

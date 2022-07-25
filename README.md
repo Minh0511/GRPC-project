@@ -3,32 +3,35 @@ A CRUD project using gRPC, MySQL and Golang
 
 # Using the project
 
-In the root folder, go to the cmd directory and run the server:
-````
-cd cmd/server
-server.exe -grpc-port=9090 -db-host=<HOST>:3306 -db-user=<USER> -db-password=<PASSWORD> -db-schema=<SCHEMA>
-./server -grpc-port=9090 -db-host=127.0.0.1:3306 -db-user=root -db-password=1 -db-schema=ToDo
-````
-In another terminal, go to the cmd directory and run the client
-````
-cd cmd/test-client
-go build .
-test-client.exe -server=localhost:9090
-````
-# Important:
-The "go build ." command will create an .exe file which can be run on Windows only.
-In order to run  our project on Linux, we have to do some extra steps
+In the root folder, run docker compose:
 
-In the server folder, run:
-````
-chmod +x server
-./server -grpc-port=9090 -db-host=<HOST>:3306 -db-user=<USER> -db-password=<PASSWORD> -db-schema=<SCHEMA>
-````
+```
+docker-compose up
+```
+This will start a docker container for the project.
 
-In the test-client folder, run:
-````
-chmod +x test-client
-./test-client -server=localhost:9090
-````
+To start the server, go to the main folder, server folder and run:
+
+```
+go run main.go
+```
+
+To start the client, go to the main folder, client folder and run:
+
+```
+go run main.go
+```
+
+To use redis, go to the main folder, redis folder and run:
+
+```
+go run redis.go
+```
+
+To run elasticsearch, go to the main folder, elasticsearch folder and run:
+
+```
+go run elastic.go
+```
 
 If you do these steps correctly, you'll see the project's working

@@ -31,7 +31,7 @@ func (s *transactionServiceServer) CreateCustomer(ctx context.Context, request *
 		return nil, err
 	}
 	tx := s.db.MustBegin()
-	tx.MustExec("INSERT INTO Customer (CustomerName, Phone, Email, Product) VALUES (?, ?, ?, ?)", request.Customer.CustomerName, request.Customer.Phone, request.Customer.Email, request.Customer.Product)
+	tx.MustExec("INSERT INTO Customer (CustomerName, Phone, Email, Product, ReadyToPush) VALUES (?, ?, ?, ?)", request.Customer.CustomerName, request.Customer.Phone, request.Customer.Email, request.Customer.Product, 1)
 	tx.Commit()
 	return &v1.CreateResponse{
 		Api:      apiVersion,
@@ -43,7 +43,7 @@ func (s *transactionServiceServer) GetAllCustomer(ctx context.Context, request *
 	if err := s.checkAPI(request.Api); err != nil {
 		return nil, err
 	}
-	rows, err := s.db.Queryx("SELECT CustomerName, Phone, Email, Product FROM Customer")
+	rows, err := s.db.Queryx("SELECT CustomerName, Phone, Email, Product, ReadyToPush FROM Customer")
 	if err != nil {
 		return nil, status.Error(codes.Unknown, "failed to query-> "+err.Error())
 	}
@@ -51,7 +51,7 @@ func (s *transactionServiceServer) GetAllCustomer(ctx context.Context, request *
 	var customers []*v1.Customer
 	for rows.Next() {
 		var m v1.Customer
-		if err := rows.Scan(&m.CustomerName, &m.Phone, &m.Email, &m.Product); err != nil {
+		if err := rows.Scan(&m.CustomerName, &m.Phone, &m.Email, &m.Product, &m.ReadyToPush); err != nil {
 			return nil, status.Error(codes.Unknown, "failed to retrieve field values from row-> "+err.Error())
 		}
 		customers = append(customers, &m)
@@ -68,12 +68,13 @@ type responseForGetCustomerByProduct struct {
 	Phone         string `db:"Phone"`
 	Email         string `db:"Email"`
 	Product       string `db:"Product"`
+	ReadyToPush   int32  `db:"ReadyToPush"`
 }
 
 func (s *transactionServiceServer) GetCustomerByProduct(ctx context.Context, request *v1.ReadRequest) (*v1.ReadResponse, error) {
 	start := time.Now()
 	tx := s.db.MustBegin()
-	listMovie := "SELECT TransactionID, CustomerName, Phone, Email, Product FROM Customer WHERE Product = ?"
+	listMovie := "SELECT TransactionID, CustomerName, Phone, Email, Product, ReadyToPush FROM Customer WHERE Product = ?"
 	var queryAns []*responseForGetCustomerByProduct
 	err := tx.SelectContext(ctx, &queryAns, listMovie, request.Product)
 	if err != nil {
@@ -88,6 +89,7 @@ func (s *transactionServiceServer) GetCustomerByProduct(ctx context.Context, req
 		m.Phone = v.Phone
 		m.Email = v.Email
 		m.Product = v.Product
+		m.ReadyToPush = v.ReadyToPush
 		customers = append(customers, &m)
 	}
 	tx.Commit()
@@ -125,6 +127,39 @@ func (s *transactionServiceServer) DeleteCustomer(ctx context.Context, request *
 		return nil, err
 	}
 	return &v1.DeleteResponse{
+		Api: apiVersion,
+	}, nil
+}
+
+func (s *transactionServiceServer) UpdateReadyToPush(ctx context.Context, request *v1.UpdateFlagRequest) (*v1.UpdateFlagResponse, error) {
+	start := time.Now()
+	if err := s.checkAPI(request.Api); err != nil {
+		return nil, err
+	}
+	tx := s.db.MustBegin()
+	tx.MustExec("UPDATE Customer SET ReadyToPush = ? WHERE ReadyToPush = ?", 0, request.ReadyToPush)
+	err := tx.Commit()
+	if err != nil {
+		return nil, err
+	}
+	//
+	//tx := s.db.MustBegin()
+	//for i := 1; i <= 100; i++ {
+	//	generate := make([]interface{}, 0)
+	//	placeholders := make([]string, 0)
+	//	for j := 0; j < 10000; j++ {
+	//		generate = append(generate, 0)
+	//		placeholders = append(placeholders, "?")
+	//	}
+	//	query := fmt.Sprintf("UPDATE Customer SET ReadyToPush = %s WHERE ReadyToPush = 1", strings.Join(placeholders, ","))
+	//	tx.MustExec(query, generate...)
+	//}
+	//err := tx.Commit()
+	//if err != nil {
+	//	return nil, err
+	//}
+	fmt.Println("Update ready to push executed in: ", time.Since(start))
+	return &v1.UpdateFlagResponse{
 		Api: apiVersion,
 	}, nil
 }

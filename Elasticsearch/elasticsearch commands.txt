@@ -1,0 +1,56 @@
+GET /customer/_mapping
+
+DELETE customer
+
+GET /customer/_search
+{
+  "query": {
+    "match": {
+      "Product": {
+        "query": "asus"
+      }
+    }
+  }
+}
+
+GET /customer/_settings
+
+PUT customer
+{
+  "settings": {
+    "analysis": {
+      "analyzer": {
+        "prefix_search": {
+          "filter": [
+            "lowercase"
+          ],
+          "tokenizer": "prefix_search"
+        }
+      },
+      "tokenizer": {
+        "prefix_search": {
+          "type": "edge_ngram",
+          "min_gram": 3,
+          "max_gram": 20
+        }
+      }
+    }
+  }
+}
+
+PUT customer/_mapping
+{
+  "properties" : {
+    "Product": {
+      "type": "text",
+      "analyzer": "prefix_search"
+    }
+  }
+}
+
+
+
+POST customer/_analyze
+{
+  "text": "70346@fb.com"
+}

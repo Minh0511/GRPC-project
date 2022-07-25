@@ -92,11 +92,13 @@ func addDBtoRedis(ctx context.Context, client *redis.Client, query string) error
 			Phone        string `json:"Phone"`
 			Email        string `json:"Email"`
 			Product      string `json:"Product"`
+			ReadyToPush  int32  `json:"ReadyToPush"`
 		}{}
 		convert.CustomerName = res.Customer[i].CustomerName
 		convert.Phone = res.Customer[i].Phone
 		convert.Email = res.Customer[i].Email
 		convert.Product = res.Customer[i].Product
+		convert.ReadyToPush = res.Customer[i].ReadyToPush
 
 		byteArray, err := json.Marshal(convert)
 		if err != nil {

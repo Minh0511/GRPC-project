@@ -27,6 +27,7 @@ type TransactionServiceClient interface {
 	GetCustomerByProduct(ctx context.Context, in *ReadRequest, opts ...grpc.CallOption) (*ReadResponse, error)
 	UpdateCustomer(ctx context.Context, in *UpdateRequest, opts ...grpc.CallOption) (*UpdateResponse, error)
 	DeleteCustomer(ctx context.Context, in *DeleteRequest, opts ...grpc.CallOption) (*DeleteResponse, error)
+	UpdateReadyToPush(ctx context.Context, in *UpdateFlagRequest, opts ...grpc.CallOption) (*UpdateFlagResponse, error)
 }
 
 type transactionServiceClient struct {
@@ -82,6 +83,15 @@ func (c *transactionServiceClient) DeleteCustomer(ctx context.Context, in *Delet
 	return out, nil
 }
 
+func (c *transactionServiceClient) UpdateReadyToPush(ctx context.Context, in *UpdateFlagRequest, opts ...grpc.CallOption) (*UpdateFlagResponse, error) {
+	out := new(UpdateFlagResponse)
+	err := c.cc.Invoke(ctx, "/v1.TransactionService/UpdateReadyToPush", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // TransactionServiceServer is the server API for TransactionService service.
 // All implementations must embed UnimplementedTransactionServiceServer
 // for forward compatibility
@@ -91,6 +101,7 @@ type TransactionServiceServer interface {
 	GetCustomerByProduct(context.Context, *ReadRequest) (*ReadResponse, error)
 	UpdateCustomer(context.Context, *UpdateRequest) (*UpdateResponse, error)
 	DeleteCustomer(context.Context, *DeleteRequest) (*DeleteResponse, error)
+	UpdateReadyToPush(context.Context, *UpdateFlagRequest) (*UpdateFlagResponse, error)
 	mustEmbedUnimplementedTransactionServiceServer()
 }
 
@@ -112,6 +123,9 @@ func (UnimplementedTransactionServiceServer) UpdateCustomer(context.Context, *Up
 }
 func (UnimplementedTransactionServiceServer) DeleteCustomer(context.Context, *DeleteRequest) (*DeleteResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DeleteCustomer not implemented")
+}
+func (UnimplementedTransactionServiceServer) UpdateReadyToPush(context.Context, *UpdateFlagRequest) (*UpdateFlagResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UpdateReadyToPush not implemented")
 }
 func (UnimplementedTransactionServiceServer) mustEmbedUnimplementedTransactionServiceServer() {}
 
@@ -216,6 +230,24 @@ func _TransactionService_DeleteCustomer_Handler(srv interface{}, ctx context.Con
 	return interceptor(ctx, in, info, handler)
 }
 
+func _TransactionService_UpdateReadyToPush_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UpdateFlagRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(TransactionServiceServer).UpdateReadyToPush(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/v1.TransactionService/UpdateReadyToPush",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(TransactionServiceServer).UpdateReadyToPush(ctx, req.(*UpdateFlagRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // TransactionService_ServiceDesc is the grpc.ServiceDesc for TransactionService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -242,6 +274,10 @@ var TransactionService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "DeleteCustomer",
 			Handler:    _TransactionService_DeleteCustomer_Handler,
+		},
+		{
+			MethodName: "UpdateReadyToPush",
+			Handler:    _TransactionService_UpdateReadyToPush_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

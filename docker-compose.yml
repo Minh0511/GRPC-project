@@ -3,6 +3,7 @@ version: "2.6.0"
 services:
   mysql:
     image: mysql:8.0
+    command: --max_allowed_packet=1073741824
     container_name: 'mysql-server'
     environment:
       MYSQL_ROOT_PASSWORD: 1
