@@ -1,0 +1,76 @@
+GET /customer/_mapping
+
+DELETE customer
+
+GET /customer/_count
+
+GET /customer/_search
+{
+  "query": {
+    "match": {
+      "Email.reverse": {
+        "query": "59352@uet.com"
+      }
+    }
+  }
+}
+
+GET /customer/_settings
+
+PUT customer
+{
+  "settings": {
+    "analysis": {
+      "analyzer": {
+        "suffix": {
+          "tokenizer": "keyword",
+          "filter": [
+            "lowercase",
+            "reverse",
+            "custom_filter"
+          ]
+        },
+        "my_search": {
+          "tokenizer": "keyword",
+          "filter": [
+            "reverse"
+          ]
+        }
+      },
+      "filter": {
+        "custom_filter": {
+          "type": "edge_ngram",
+          "min_gram": 3,
+          "max_gram": 20
+        }
+      }
+    }
+  }
+}
+
+PUT customer/_mapping
+{
+  "properties" : {
+    "Email": {
+      "type": "text",
+      "fields": {
+        "keyword": {
+          "type": "keyword"
+        },
+        "reverse": {
+          "type": "text",
+          "analyzer": "suffix",
+          "search_analyzer": "my_search"
+        }
+      }
+    }
+  }
+}
+
+
+
+POST customer/_analyze
+{
+  "analyzer": "suffix",
+  "text": "30061@fb.com"
+}

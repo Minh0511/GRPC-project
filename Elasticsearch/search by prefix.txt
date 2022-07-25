@@ -54,3 +54,5 @@ POST customer/_analyze
 {
   "text": "70346@fb.com"
 }
+
+30061@fb.com
