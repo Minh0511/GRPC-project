@@ -1,0 +1,86 @@
+DELETE customerinfo
+
+PUT customerinfo
+{
+  "settings": {
+    "analysis": {
+      "analyzer": {
+        "prefix_search": {
+          "filter": [
+            "lowercase"
+          ],
+          "tokenizer": "prefix_search"
+        }
+      },
+      "tokenizer": {
+        "prefix_search": {
+          "type": "edge_ngram",
+          "min_gram": 3,
+          "max_gram": 20
+        }
+      }
+    }
+  }
+}
+
+PUT customerinfo/_mapping
+{
+    "properties": {
+      "location": {
+        "type": "geo_point"
+      },
+      "CustomerName": {
+        "type": "text",
+        "analyzer": "prefix_search"
+      }
+    }
+}
+
+GET customerinfo/_mapping
+
+GET customerinfo/_search
+{
+  "size": 20,
+  "track_scores": true,
+  "sort": [
+    {
+      "_score": {
+        "order": "asc"
+      },
+      "_geo_distance" : {
+        "location": {
+          "lat": 25,
+          "lon": 103
+        },
+          "order" : "asc",
+          "mode": "min",
+          "unit": "km"
+      }
+    }
+  ],
+  "query": {
+    "bool": {
+      "must": [
+        {
+          "match": {
+            "CustomerName": "Đặng"
+          }
+        },
+        {
+          "match": {
+            "Store": "Teko"
+          }
+        }
+      ],
+      "filter": {
+        "geo_distance": {
+          "distance": "100km",
+          "location": {
+            "lat": 22,
+            "lon": 103
+          }
+        }
+      }
+    }
+  }
+}
